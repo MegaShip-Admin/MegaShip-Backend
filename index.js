@@ -1,25 +1,36 @@
 import express from "express";
 import bodyParser from "body-parser";
 import 'dotenv/config';
-import { createClient } from '@supabase/supabase-js'
-const supabaseUrl = 'https://cyfllxdbwhsnlymltmjk.supabase.co'
-const supabaseKey = process.env.SUPABASE_KEY
-const supabase = createClient(supabaseUrl, supabaseKey)
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://cyfllxdbwhsnlymltmjk.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const app = express();
 app.use(bodyParser.json());
 
-try {
-    let { data: Cliente, error } = await supabase
-        .from('Cliente')
-        .select()
+async function fetchData() {
+    try {
+        const { data: Cliente, error } = await supabase
+            .from('Cliente')
+            .select();
 
-    if (Cliente) {
-        console.log(Cliente)
+        if (error) {
+            console.error("Error fetching data:", error);
+            return;
+        }
+
+        if (Cliente) {
+            console.log("Clientes:", Cliente);
+        }
+    } catch (err) {
+        console.error("Unexpected error:", err);
     }
-} catch {
-    console.log(error)
 }
+
+// Llama a fetchData para verificar la conexión y los datos
+fetchData();
 
 app.get("/", (req, res) => {
     res.send("hola!");
