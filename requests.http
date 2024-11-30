@@ -1,6 +1,13 @@
 GET http://localhost:3000/trabajos HTTP/1.1
 ###
-
+GET http://localhost:3000/variables HTTP/1.1
+###
+GET http://localhost:3000/deposito HTTP/1.1
+###
+GET http://localhost:3000/servicios HTTP/1.1
+###
+GET http://localhost:3000/localidad HTTP/1.1
+###
 POST http://localhost:3000/trabajos HTTP/1.1
 Content-Type: application/json
 

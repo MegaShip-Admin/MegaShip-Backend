@@ -1,16 +1,47 @@
 import { app, supabase } from "../index.js";
 
-const { data, error } = await supabase
-  .from('Trabajo')
-  .select()
+async function getTrabajo() {
+  const { data, error } = await supabase
+    .from('Trabajo')
+    .select()
+  return (data)
+}
+
+async function getVariables() {
+  const { data, error } = await supabase
+    .from('Variable')
+    .select()
+  return (data)
+}
+
+async function getDeposito() {
+  const { data, error } = await supabase
+    .from('Deposito')
+    .select()
+  return (data)
+}
+
+async function getServicios() {
+  const { data, error } = await supabase
+    .from('Servicio')
+    .select()
+  return (data)
+}
+
+async function getLocalidad() {
+  const { data, error } = await supabase
+    .from('Localizacion')
+    .select()
+  return (data)
+}
 
 async function createCommon() {
   try {
-  const { data, error } = await supabase
-    .from('Common')
-    .insert({})
-    .select("id")
-  return (data[0].id)
+    const { data, error } = await supabase
+      .from('Common')
+      .insert({})
+      .select("id")
+    return (data[0].id)
   } catch {
     return ("exploto we")
   }
@@ -18,17 +49,38 @@ async function createCommon() {
 
 async function createTrabajo(id, body) {
   try {
-  const { data, error } = await supabase
-    .from('Trabajo')
-    .insert({ id, ...body})
-    .select()
-  return (data)
+    const { data, error } = await supabase
+      .from('Trabajo')
+      .insert({ id, ...body })
+      .select()
+    return (data)
   } catch {
     return ("exploto we")
   }
 }
 
-app.get("/trabajos", (req, res) => {
+app.get("/trabajos", async (req, res) => {
+  const data = await getTrabajo();
+  res.json(data);
+});
+
+app.get("/variables", async (req, res) => {
+  const data = await getVariables();
+  res.json(data);
+});
+
+app.get("/deposito", async (req, res) => {
+  const data = await getDeposito();
+  res.json(data);
+});
+
+app.get("/servicios", async (req, res) => {
+  const data = await getServicios();
+  res.json(data);
+});
+
+app.get("/localidad", async (req, res) => {
+  const data = await getLocalidad();
   res.send(data);
 });
 
