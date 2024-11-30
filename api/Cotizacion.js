@@ -10,7 +10,7 @@ async function createCommon() {
     .from('Common')
     .insert({})
     .select("id")
-  return (Object.values(data[0]))
+  return (data[0].id)
   } catch {
     return ("exploto we")
   }
@@ -20,11 +20,11 @@ async function createTrabajo(id, body) {
   try {
   const { data, error } = await supabase
     .from('Trabajo')
-    .insert({ "id": id, ...body })
+    .insert({ id, ...body})
     .select()
-  return (id)
+  return (data)
   } catch {
-    return ("explote yo amigo mishel")
+    return ("exploto we")
   }
 }
 
@@ -36,12 +36,8 @@ app.post("/trabajos", async (req, res) => {
   const body = req.body
   try {
     const id = await createCommon()
-    let trueid = 1
-    for (let x of id) {
-      trueid = x
-    }
-    ///const data = await createTrabajo(trueid, body)
-    res.send(trueid)
+    const data = await createTrabajo(id, body)
+    res.json(data)
   } catch {
     res.send("no we")
   }
