@@ -59,6 +59,28 @@ async function createTrabajo(id, body) {
   }
 }
 
+async function updateTrabajo(body) {
+  let bodyWithoutId = {}
+  let id = null
+  try { 
+  for (let i in body) {
+    if (i == "id") {
+      id = body[i]
+    } else {
+      bodyWithoutId[i] = body[i]
+    }
+  }
+  const { data, error } = await supabase
+    .from('Trabajo')
+    .update({...bodyWithoutId})
+    .eq('id', id)
+    .select()
+  return (data)
+  } catch {
+    return ("hola soy mister error jejej")
+  }
+}
+
 app.get("/trabajos", async (req, res) => {
   const data = await getTrabajo();
   res.json(data);
@@ -93,5 +115,14 @@ app.post("/trabajos", async (req, res) => {
   } catch {
     res.send("no we")
   }
-}
-)
+})
+
+app.put("/trabajos", async (req, res) => {
+  const body = req.body
+  try {
+    const data = await updateTrabajo(body)
+    res.json(data)
+  } catch {
+    res.send("hola soy error")
+  }
+})
