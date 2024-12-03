@@ -4,7 +4,7 @@ async function getData(tableName) {
   const { data, error } = await supabase
     .from(tableName)
     .select();
-  
+
   if (error) {
     console.error("Error fetching data from ${tableName}: ", error);
     return null; // O manejar el error como prefieras
@@ -59,9 +59,26 @@ async function createImportacion(id, body) {
       .select()
     return (data)
   } catch {
-    return("importacion exploto!!")
+    return ("importacion exploto!!")
   }
 }
+
+async function createExportacion(id, body) {
+  try {
+    const { data, error } = await supabase
+      .from('Importacion')
+      .insert({
+        id, "goec": body["goec"], "trasint": body["trasint"],
+        "gitp": body["gitp"], "gam": body["gam"],
+        "cc": body["cc"], "flete": body["flete"],
+      })
+      .select()
+    return (data)
+  } catch {
+    return ("Exportacion exploto!!")
+  }
+}
+
 
 async function updateTrabajo(body) {
   let bodyWithoutId = {}
@@ -137,7 +154,21 @@ app.post("/trabajos/importacion", async (req, res) => {
     const id = await createCommon()
     const datat = await createTrabajo(id, body)
     const datai = await createImportacion(id, body)
-    const data = {"trabajo" :datat, "importacion" :datai}
+    const data = { "trabajo": datat, "importacion": datai }
+    res.json(data)
+  } catch {
+    res.send("no we")
+  }
+})
+
+
+app.post("/trabajos/exportacion", async (req, res) => {
+  const body = req.body
+  try {
+    const id = await createCommon()
+    const datat = await createTrabajo(id, body)
+    const datai = await createExportacion(id, body)
+    const data = { "trabajo": datat, "Exportacion": datai }
     res.json(data)
   } catch {
     res.send("no we")
