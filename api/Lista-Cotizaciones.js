@@ -1,5 +1,17 @@
 import { app, supabase } from "../index.js";
 
+async function createCommon() {
+  try {
+    const { data, error } = await supabase
+      .from('Common')
+      .insert({})
+      .select("id")
+    return (data[0].id)
+  } catch {
+    return ("exploto we")
+  }
+}
+
 async function getData(tableName) {
     const { data, error } = await supabase
       .from(tableName)
@@ -108,11 +120,12 @@ app.get("/trabajos/:id", async (req, res) => {
     if (body["importacion"] == true) {
         const datai = await createImportacion(id, body)
         const data = {"trabajo" :datat, "importacion" :datai}
+        res.json(data)
     } else {
         const datae = await createExportacion(id, body)
         const data = {"trabajo" :datat, "exportacion" :datae}
+        res.json(data)
     }
-    res.json(data)
   } catch {
     res.send("no we")
   }
