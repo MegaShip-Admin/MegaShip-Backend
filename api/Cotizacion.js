@@ -66,7 +66,7 @@ async function createImportacion(id, body) {
 async function createExportacion(id, body) {
   try {
     const { data, error } = await supabase
-      .from('Importacion')
+      .from('Exportacion')
       .insert({
         id, "goec": body["goec"], "trasint": body["trasint"],
         "gitp": body["gitp"], "gam": body["gam"],

@@ -32,6 +32,28 @@ async function createVendedor(id, body) {
     }
 }
 
+async function updateVendedor(body) {
+    let bodyWithoutId = {}
+    let id = null
+    try {
+        for (let i in body) {
+            if (i == "id") {
+                id = body[i]
+            } else {
+                bodyWithoutId[i] = body[i]
+            }
+        }
+        const { data, error } = await supabase
+            .from('Vendedor')
+            .update({ ...bodyWithoutId })
+            .eq('id', id)
+            .select()
+        return (data)
+    } catch {
+        return ("hola soy mister error jejej")
+    }
+}
+
 app.get("/vendedor", async (req, res) => {
     const data = await getVendedor();
     res.send(data);
@@ -45,5 +67,26 @@ app.post("/vendedor", async (req, res) => {
         res.json(data)
     } catch {
         res.send("A ocurrido un error")
+    }
+})
+
+
+app.patch("/vendedor/{id}", async (req, res) => {
+    const body = req.body
+    try {
+        const data = await updateVendedor(body)
+        res.json(data)
+    } catch {
+        res.send("A ocurrido un error en la modificacion")
+    }
+})
+
+app.patch("/vendedor/estado/{id}", async (req, res) => {
+    const body = req.body
+    try {
+        const data = await updateVendedor(body)
+        res.json(data)
+    } catch {
+        res.send("A ocurrido un error en la modificacion")
     }
 })
