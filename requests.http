@@ -16,11 +16,11 @@ Content-Type: application/json
     "name" : "holacuota"
 }
 ###
-PATCH http://localhost:3000/password/220 HTTP/1.1
+PATCH http://localhost:3000/vendedor/password/220 HTTP/1.1
 Content-Type: application/json
 
 {
-    "password" : "yanoesunaloca..."
+    "password" : "yanoesunaloca2..."
 }
 ###
 POST http://localhost:3000/variables HTTP/1.1

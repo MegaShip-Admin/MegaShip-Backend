@@ -87,7 +87,7 @@ app.patch('/variables/:id', async (req, res) => {
     }
 })
 
-app.patch('/password/:id', async (req, res) => {
+app.patch('/vendedor/password/:id', async (req, res) => {
     const { id } = req.params;
     const body = req.body;
     try {
