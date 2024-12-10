@@ -35,7 +35,7 @@ async function updateVendedor(id, body) {
   try {
     const { data, error } = await supabase
       .from('Vendedor')
-      .update({ ...body })
+      .update(body)
       .eq('id', id)
       .select();
 
@@ -51,10 +51,35 @@ async function updateVendedor(id, body) {
   }
 }
 
-// Ruta GET: Obtiene todos los vendedores.
+/**
+ * Obtiene todos los vendedores excluyendo el campo "password".
+ * @returns {object[]|null} - Lista de vendedores o null en caso de error.
+ */
+async function getVendedores() {
+  try {
+    const { data, error } = await supabase
+      .from('Vendedor')
+      .select('id, name, email, phone, estado'); // Especifica las columnas que deseas recuperar.
+
+    if (error) {
+      console.error("Error fetching vendedores:", error);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Unexpected error fetching vendedores:", err);
+    return null;
+  }
+}
+
+// Ruta GET: Obtiene todos los vendedores sin incluir el atributo "password".
 app.get("/vendedor", async (req, res) => {
   try {
-    const data = await getData('Vendedor');
+    const data = await getVendedores();
+    if (!data) {
+      return res.status(500).json({ error: "No se pudieron obtener los vendedores." });
+    }
     res.json(data);
   } catch (err) {
     console.error("Error fetching vendedores:", err);
@@ -72,6 +97,10 @@ app.post("/vendedor", async (req, res) => {
     }
 
     const data = await createVendedor(id, body);
+    if (!data) {
+      return res.status(500).json({ error: "Error al crear vendedor." });
+    }
+
     res.status(201).json(data);
   } catch (err) {
     console.error("Error creating vendedor:", err);
@@ -86,6 +115,9 @@ app.patch("/vendedor/:id", async (req, res) => {
 
   try {
     const data = await updateVendedor(id, body);
+    if (!data) {
+      return res.status(404).json({ error: "Vendedor no encontrado o no actualizado." });
+    }
     res.json(data);
   } catch (err) {
     console.error("Error updating vendedor:", err);
@@ -100,6 +132,9 @@ app.patch("/vendedor/estado/:id", async (req, res) => {
 
   try {
     const data = await updateVendedor(id, body);
+    if (!data) {
+      return res.status(404).json({ error: "Vendedor no encontrado o no actualizado." });
+    }
     res.json(data);
   } catch (err) {
     console.error("Error updating vendedor estado:", err);
