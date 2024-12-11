@@ -1,7 +1,7 @@
 {
   "name": "megaship-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "megaship full backend",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -16,7 +16,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.46.1",
     "dotenv": "^16.4.5",
-    "express": "^4.21.1"
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
