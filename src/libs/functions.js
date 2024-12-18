@@ -6,58 +6,103 @@ export function buildPDF(data, dataCallback, endCallback) {
   doc.on("data", dataCallback);
   doc.on("end", endCallback);
 
-  // Título del recibo
+  // Título principal
   doc.fontSize(20).text("Recibo de Servicio", { align: "center" });
   doc.moveDown(2);
 
-  // Información general
-  doc.fontSize(12).text("Información del Trabajo:", { underline: true });
+  // Transporte y tipo
+  doc.fontSize(14).text("Transporte y Tipo", { underline: true });
   doc.moveDown(0.5);
 
-  // Datos del trabajo
-  Object.entries(data.trabajo).forEach(([key, value]) => {
-    doc.text(`${capitalize(key)}: ${value !== null ? value : 'N/A'}`);
-  });
-
+  const tipoTransporte = data.importacion ? "Importación" : "Exportación";
+  const tipoCarga = data.consolidado ? "Consolidado" : "Exclusivo";
+  doc.fontSize(12).text(`Tipo: ${tipoTransporte}`);
+  doc.text(`Medio: ${data.medio}`);
+  doc.text(`Carga: ${tipoCarga}`);
   doc.moveDown(1);
-  doc.text("Información de Importación:", { underline: true });
+
+  // Características del trabajo
+  doc.fontSize(14).text("Características del Trabajo", { underline: true });
   doc.moveDown(0.5);
 
-  // Datos de importación
-  Object.entries(data.importacion).forEach(([key, value]) => {
-    doc.text(`${capitalize(key)}: ${value}`);
-  });
+  doc.fontSize(12)
+    .text(`Empresa: ${data.empresa}`)
+    .text(`Nombre: ${data.nombre}`)
+    .text(`Teléfono: ${data.telefono}`)
+    .text(`Email: ${data.email}`)
+    .text(`Origen: ${data.origen}`)
+    .text(`Destino: ${data.destino}`)
+    .text(`Incoterm: ${data.incoterm}`);
+  doc.moveDown(1);
 
-  doc.moveDown(2);
+  // Características de la carga
+  doc.fontSize(14).text("Características de la Carga", { underline: true });
+  doc.moveDown(0.5);
 
-  // Tabla resumen
-  const table = {
-    title: "Resumen de Costos",
+  doc.fontSize(12).text(`Carga peligrosa: ${data.un ? "Sí" : "No"}`);
+  if (data.consolidado) {
+    doc.text("Detalles de Carga Consolidada:");
+    Object.entries(data.consolidado).forEach(([key, value]) => {
+      doc.text(`  ${capitalize(key)}: ${value}`);
+    });
+  }
+  if (data.exclusivo) {
+    doc.text("Detalles de Carga Exclusiva:");
+    data.exclusivo.forEach((detalle, index) => {
+      doc.text(`  Exclusivo ${index + 1}:`);
+      Object.entries(detalle).forEach(([key, value]) => {
+        doc.text(`    ${capitalize(key)}: ${value}`);
+      });
+    });
+  }
+  doc.moveDown(1);
+
+  // Lista de costos
+  doc.fontSize(14).text("Lista de Costos", { underline: true });
+  doc.moveDown(0.5);
+
+  // Costos básicos
+  const costosBasicos = {
     headers: ["Concepto", "Monto"],
     rows: [
-      ["Gastos Origen", data.importacion.gastos_origen],
-      ["Tarifa", data.importacion.tarifa],
-      ["Servicio Administrativo", data.importacion.serv_admin],
-      ["Handling", data.importacion.handling],
-      ["Depósito", data.importacion.deposito],
-      ["Unificación de Factura", data.importacion.unif_factura],
-      ["TLX", data.importacion.tlx],
-      ["Seguro", data.importacion.seguro],
-      ["Depósito Local", data.importacion.deposito_local],
-      ["Salida Depósito", data.importacion.salida_depo],
+      ["Gastos de Origen", data.gastos_origen],
+      ["Tarifa", data.tarifa],
+      ["Servicios Administrativos", data.serv_admin],
+      ["Handling", data.handling],
+      ["Depósito", data.deposito],
     ],
   };
 
-  doc.text("Tabla de Costos:", { underline: true });
+  doc.text("Costos Básicos:");
+  doc.table(costosBasicos, { width: 500, columnsSize: [300, 200] });
+  doc.moveDown(1);
+
+  // Servicios extras
+  const costosExtras = {
+    headers: ["Concepto", "Monto"],
+    rows: [
+      ["Unificación de Factura", data.unif_factura],
+      ["TXL", data.txl],
+      ["Seguro", data.seguro],
+    ],
+  };
+
+  doc.text("Servicios Extras:");
+  doc.table(costosExtras, { width: 500, columnsSize: [300, 200] });
+  doc.moveDown(1);
+
+  // Datos del servicio y depósito
+  doc.fontSize(14).text("Datos del Servicio y Depósito", { underline: true });
   doc.moveDown(0.5);
 
-  // Renderiza la tabla
-  doc.table(table, {
-    width: 500,
-    columnsSize: [300, 200],
-  });
-
+  doc.fontSize(12)
+    .text(`Servicio: ${data.servicio}`)
+    .text(`Tiempo de Tránsito (TT): ${data.tt} días`)
+    .text(`Depósito Local: ${data.deposito_local}`)
+    .text(`Salida: ${data.salida}`);
   doc.moveDown(2);
+
+  // Mensaje final
   doc.text("Gracias por confiar en nuestros servicios.", { align: "center" });
 
   doc.end();

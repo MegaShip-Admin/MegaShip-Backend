@@ -19,36 +19,38 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 export const app = express();
 app.use(bodyParser.json()); // Prefijo de rutas
 
-const datai = {
-  "id" : 7,
-  "gastos_origen" : 250,
-  "tarifa" : 25,
-  "serv_admin" : 20,
-  "handling" : 102,
-  "deposito" : 24,
-  "unif_factura" : 102,
-  "tlx" : 104,
-  "seguro" : 42,
-  "deposito_local" : 12,
-  "salida_depo" : 200
-  }
-const datat = {
-  "id" : 7,
-  "origen" : 18,
-  "destino" : 17,
+const data = {
+  "importacion" : true,
+  "medio" : "Maritimo",
+  "consolidado" : {
+    "piezas" : 4,
+    "peso" : 40,
+    "cbm" : 5
+  },
+  "exclusivo" : null,
+  "empresa" : "MishiCorp",
+  "nombre" : "Mishel Tomas",
+  "email" : "mishi@gmail.com",
+  "telefono" : "090909090",
+  "origen" : "Shangai",
+  "destino" : "Montevideo",
+  "incoterm" : "FCA",
+  "un" : null,
+  "gastos_origen" : 95.00,
+  "tarifa" : 95.00,
+  "serv_admin" : 95.00,
+  "handling" : 95.00,
+  "deposito" : 95.00,
+  "unif_factura" : 0.00,
+  "txl" : 0.00,
+  "seguro" : 0.00,
+  "servicio" : "Directo",
+  "tt" : 60,
   "validez_ini" : "20/12/24",
   "validez_fin" : "26/12/24",
-  "cliente" : 10,
-  "incoterm" : 2,
-  "medio" : 3,
-  "costo" : 250,
-  "Servicio" : 6,
-  "tt" : 20,
-  "Vendedor" : null,
-  "consolidado" : null,
-  "exclusivo" : null
+  "deposito_local" : "TCL",
+  "salida" : 0
 }
-const data = { "trabajo" : datat, "importacion" : datai}
 
 app.get("/pdf", (req, res) => {
   const stream = res.writeHead(200, {
