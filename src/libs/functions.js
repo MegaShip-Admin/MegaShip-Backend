@@ -1,3 +1,5 @@
+import PDFDocument from "pdfkit-table";
+
 export function buildPDF(data, dataCallback, endCallback) {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
   
