@@ -22,12 +22,24 @@ app.use(bodyParser.json()); // Prefijo de rutas
 const data = {
   "importacion" : true,
   "medio" : "Maritimo",
-  "consolidado" : {
-    "piezas" : 4,
-    "peso" : 40,
-    "cbm" : 5
-  },
-  "exclusivo" : null,
+  "consolidado" : null,
+  "exclusivo" : [
+    {
+      "Tipo" : "Dry",
+      "cantidad" : 2,
+      "size" : "20 ft"
+    },
+    {
+      "Tipo" : "Dry",
+      "cantidad" : 2,
+      "size" : "20 ft"
+    },
+    {
+      "Tipo" : "Dry",
+      "cantidad" : 2,
+      "size" : "20 ft"
+    }
+  ],
   "empresa" : "MishiCorp",
   "nombre" : "Mishel Tomas",
   "email" : "mishi@gmail.com",
