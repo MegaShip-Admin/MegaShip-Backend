@@ -10,23 +10,25 @@ export function buildPDF(data, dataCallback, endCallback) {
   doc.fontSize(20).text("Recibo de Servicio", { align: "center" });
   doc.moveDown(2);
 
-  // Transporte y tipo
-  doc.fontSize(14).text("Transporte y Tipo", { underline: true });
+  // Transporte y Características del Trabajo en columnas
+  doc.fontSize(14).text("Transporte y Tipo / Características del Trabajo", { underline: true });
   doc.moveDown(0.5);
 
-  const tipoTransporte = data.importacion ? "Importación" : "Exportación";
-  const tipoCarga = data.consolidado ? "Consolidado" : "Exclusivo";
-  doc.fontSize(12).text(`Tipo: ${tipoTransporte}`);
-  doc.text(`Medio: ${data.medio}`);
-  doc.text(`Carga: ${tipoCarga}`);
-  doc.moveDown(1);
+  const columnWidth = 250; // Ancho de cada columna
+  const startX = doc.x; // Posición inicial en X
+  const columnGap = 20; // Espacio entre columnas
 
-  // Características del trabajo
-  doc.fontSize(14).text("Características del Trabajo", { underline: true });
-  doc.moveDown(0.5);
-
+  // Primera columna: Transporte y Tipo
   doc.fontSize(12)
-    .text(`Empresa: ${data.empresa}`)
+    .text(`Tipo: ${data.importacion ? "Importación" : "Exportación"}`, startX, doc.y)
+    .text(`Medio: ${data.medio}`)
+    .text(`Carga: ${data.consolidado ? "Consolidado" : "Exclusivo"}`, startX, doc.y)
+    .moveDown(1);
+
+  // Segunda columna: Características del Trabajo
+  const secondColumnX = startX + columnWidth + columnGap;
+  doc
+    .text(`Empresa: ${data.empresa}`, secondColumnX, doc.y - 60)
     .text(`Nombre: ${data.nombre}`)
     .text(`Teléfono: ${data.telefono}`)
     .text(`Email: ${data.email}`)

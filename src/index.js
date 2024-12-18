@@ -65,9 +65,22 @@ const data = {
 }
 
 app.get("/pdf", (req, res) => {
+  const getFileName = (data) => {
+    const empresa = data.empresa.charAt(0).toUpperCase();
+    const nombre = data.nombre.charAt(0).toUpperCase();
+    const origen = data.origen.charAt(0).toUpperCase();
+    const destino = data.destino.charAt(0).toUpperCase();
+    const ultimaFecha = data.validez_fin.replace(/\//g, "-"); // Quitar las barras de la fecha
+    const incoterm = data.incoterm.toUpperCase();
+
+    return `${empresa}${nombre}${origen}${destino}${ultimaFecha}${incoterm}.pdf`;
+  };
+
+  const fileName = getFileName(data);
+
   const stream = res.writeHead(200, {
     "Content-Type": "application/pdf",
-    "Content-Disposition": "attachment; filename=recibo.pdf",
+    "Content-Disposition": `attachment; filename=${fileName}`,
   });
 
   buildPDF(data, (chunk) => stream.write(chunk), () => stream.end());
