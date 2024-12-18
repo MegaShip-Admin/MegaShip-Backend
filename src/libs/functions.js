@@ -10,44 +10,33 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.fontSize(14).text("Reporte de Servicio", { align: "center", underline: true });
     doc.moveDown(2);
 
-    // Secciones paralelas: "Transporte y Tipo" y "Características del Trabajo"
-    const transporteYTipo = [
-        ["Importación", data.importacion ? "Sí" : "No"],
-        ["Medio", data.medio],
-        ["Consolidado", data.consolidado ? "Sí" : "No"],
-        ["Exclusivo", data.exclusivo ? "Sí" : "No"],
-    ];
+    // Ajustes para transporte y tipo
+    const startX = doc.x; // Inicio de la página
+    const colWidth = 250; // Ancho de columna para los dos bloques
+    const spacing = 30; // Espaciado entre columnas
 
-    const caracteristicasTrabajo = [
-        ["Empresa", data.empresa],
-        ["Nombre", data.nombre],
-        ["Teléfono", data.telefono],
-        ["Email", data.email],
-        ["Origen", data.origen],
-        ["Destino", data.destino],
-        ["Incoterm", data.incoterm],
-    ];
+    // Bloque "Transporte y Tipo"
+    doc.fontSize(12).text("Transporte y Tipo", startX, doc.y, { underline: true });
+    doc.moveDown();
+    doc.text(`Importación: ${data.importacion ? "Sí" : "No"}`);
+    doc.text(`Medio: ${data.medio}`);
+    doc.text(`Consolidado: ${data.consolidado ? "Sí" : "No"}`);
+    doc.text(`Exclusivo: ${data.exclusivo ? "Sí" : "No"}`);
 
-    // Diseño en paralelo
-    const startX = doc.x;
-    const colWidth = 250;
+    // Bloque "Características del Trabajo"
+    const col2X = startX + colWidth + spacing;
+    const currentY = doc.y - 60; // Ajustar para alinear ambas columnas
+    doc.fontSize(12).text("Características del Trabajo", col2X, currentY, { underline: true });
+    doc.moveDown();
+    doc.text(`Empresa: ${data.empresa}`, col2X);
+    doc.text(`Nombre: ${data.nombre}`, col2X);
+    doc.text(`Teléfono: ${data.telefono}`, col2X);
+    doc.text(`Email: ${data.email}`, col2X);
+    doc.text(`Origen: ${data.origen}`, col2X);
+    doc.text(`Destino: ${data.destino}`, col2X);
+    doc.text(`Incoterm: ${data.incoterm}`, col2X);
 
-    doc.text("Transporte y Tipo", startX, doc.y, { underline: true });
-    doc.table(
-        { headers: ["Atributo", "Valor"], rows: transporteYTipo },
-        { columnsSize: [150, 200], x: startX, y: doc.y + 15 }
-    );
-
-    const col2X = startX + colWidth + 30;
-    const currentY = doc.y;
-
-    doc.text("Características del Trabajo", col2X, currentY, { underline: true });
-    doc.table(
-        { headers: ["Atributo", "Valor"], rows: caracteristicasTrabajo },
-        { columnsSize: [150, 200], x: col2X, y: currentY + 15 }
-    );
-
-    // Continuar con otras secciones después de un salto
+    // Salto de línea después de los bloques
     doc.moveDown(2);
 
     // Características de la Carga
