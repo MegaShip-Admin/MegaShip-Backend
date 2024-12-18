@@ -15,7 +15,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     const colWidth = 250; // Ancho de columna para los dos bloques
     const spacing = 30; // Espaciado entre columnas
 
-    // Bloque "Transporte y Tipo"
+    // Bloque "Transporte y Tipo" (quedará a la izquierda)
     doc.fontSize(12).text("Transporte y Tipo", startX, doc.y, { underline: true });
     doc.moveDown();
     doc.text(`Importación: ${data.importacion ? "Sí" : "No"}`);
@@ -23,7 +23,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.text(`Consolidado: ${data.consolidado ? "Sí" : "No"}`);
     doc.text(`Exclusivo: ${data.exclusivo ? "Sí" : "No"}`);
 
-    // Bloque "Características del Trabajo"
+    // Bloque "Características del Trabajo" (se moverá a la derecha)
     const col2X = startX + colWidth + spacing;
     const currentY = doc.y - 60; // Ajustar para alinear ambas columnas
     doc.fontSize(12).text("Características del Trabajo", col2X, currentY, { underline: true });
