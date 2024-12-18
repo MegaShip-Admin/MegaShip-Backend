@@ -32,7 +32,8 @@ export function buildPDF(data, dataCallback, endCallback) {
     .text(`Email: ${data.email}`)
     .text(`Origen: ${data.origen}`)
     .text(`Destino: ${data.destino}`)
-    .text(`Incoterm: ${data.incoterm}`);
+    .text(`Incoterm: ${data.incoterm}`)
+    .text(`Validez: Del ${data.validez_ini} al ${data.validez_fin}`);
   doc.moveDown(1);
 
   // Características de la carga
@@ -40,20 +41,27 @@ export function buildPDF(data, dataCallback, endCallback) {
   doc.moveDown(0.5);
 
   doc.fontSize(12).text(`Carga peligrosa: ${data.un ? "Sí" : "No"}`);
+
   if (data.consolidado) {
     doc.text("Detalles de Carga Consolidada:");
     Object.entries(data.consolidado).forEach(([key, value]) => {
       doc.text(`  ${capitalize(key)}: ${value}`);
     });
   }
+
   if (data.exclusivo) {
     doc.text("Detalles de Carga Exclusiva:");
-    data.exclusivo.forEach((detalle, index) => {
-      doc.text(`  Exclusivo ${index + 1}:`);
-      Object.entries(detalle).forEach(([key, value]) => {
-        doc.text(`    ${capitalize(key)}: ${value}`);
-      });
-    });
+    const rows = data.exclusivo.map((item) =>
+      Object.values(item).map((value) => `${value}`)
+    );
+
+    const exclusivoTable = {
+      headers: Object.keys(data.exclusivo[0]).map((key) => capitalize(key)),
+      rows: rows,
+    };
+
+    // Crear tabla para cargas exclusivas
+    doc.table(exclusivoTable, { width: 500, columnsSize: [150, 150, 150] });
   }
   doc.moveDown(1);
 
@@ -65,11 +73,11 @@ export function buildPDF(data, dataCallback, endCallback) {
   const costosBasicos = {
     headers: ["Concepto", "Monto"],
     rows: [
-      ["Gastos de Origen", data.gastos_origen],
-      ["Tarifa", data.tarifa],
-      ["Servicios Administrativos", data.serv_admin],
-      ["Handling", data.handling],
-      ["Depósito", data.deposito],
+      ["Gastos de Origen", data.gastos_origen.toFixed(2)],
+      ["Tarifa", data.tarifa.toFixed(2)],
+      ["Servicios Administrativos", data.serv_admin.toFixed(2)],
+      ["Handling", data.handling.toFixed(2)],
+      ["Depósito", data.deposito.toFixed(2)],
     ],
   };
 
@@ -81,9 +89,9 @@ export function buildPDF(data, dataCallback, endCallback) {
   const costosExtras = {
     headers: ["Concepto", "Monto"],
     rows: [
-      ["Unificación de Factura", data.unif_factura],
-      ["TXL", data.txl],
-      ["Seguro", data.seguro],
+      ["Unificación de Factura", data.unif_factura.toFixed(2)],
+      ["TXL", data.txl.toFixed(2)],
+      ["Seguro", data.seguro.toFixed(2)],
     ],
   };
 
