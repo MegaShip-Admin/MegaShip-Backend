@@ -6,8 +6,12 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.on("data", dataCallback);
     doc.on("end", endCallback);
 
-    // Título general
-    doc.fontSize(14).text("Reporte de Servicio", { align: "center", underline: true });
+    // Agregar el logo
+    doc.image("./src/img/Logo.png", 50, 20, { width: 100 }); // Ajusta el ancho y la posición según sea necesario
+
+    // Título general debajo del logo
+    doc.fontSize(14)
+        .text("Reporte de Servicio", 0, 80, { align: "center", underline: true }); // Ajusta el valor '80' según la altura del logo
     doc.moveDown(2);
 
     // Tabla "Transporte y Tipo"
