@@ -16,7 +16,7 @@ export function buildPDF(data, dataCallback, endCallback) {
 
     // Título general debajo del logo
     doc.fontSize(16)
-        .text("Megaship Soluciones Logísticas", 0, 80, { align: "center", underline: true }); // Ajusta el valor '80' según la altura del logo
+        .text("Megaship Soluciones Logísticas", 0, 80, { align: "center" , underline: true }); // Ajusta el valor '80' según la altura del logo
 
     // Tabla "Transporte y Tipo"
     const transporteTipo = [
@@ -27,7 +27,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     ];
 
     doc.moveDown();
-    doc.fontSize(12).text("Transporte y Tipo", { align: "center", underline: true });
+    doc.fontSize(12).text("Transporte y Tipo", { x: leftMargin , underline: true });
     doc.table(
         { headers: ["Atributo", "Valor"], rows: transporteTipo },
         { columnsSize: [200, 150], x: leftMargin } // Centra la tabla
@@ -63,7 +63,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     }
 
     if (data.exclusivo) {
-        doc.fontSize(12).text("Cargas Exclusivas", { align: "center", underline: true });
+        doc.fontSize(12).text("Cargas Exclusivas", { x: leftMargin , underline: true });
         const cargasExclusivas = data.exclusivo.map((carga) => [
             carga.Tipo,
             `${carga.cantidad} x ${carga.size}`,
@@ -75,7 +75,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     }
 
     // Costos (alineado a la izquierda)
-    doc.fontSize(12).text("Costos", { align: "center", underline: true });
+    doc.fontSize(12).text("Costos", { x: leftMargin , underline: true });
 
     const costos = [
         ["Gastos de Origen", `$${data.gastos_origen.toFixed(2)}`],
@@ -102,7 +102,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     );
 
     // Datos del servicio y depósito (alineado a la izquierda)
-    doc.fontSize(12).text("Datos del Servicio y Depósito", { align: "center", underline: true });
+    doc.fontSize(12).text("Datos del Servicio y Depósito", { x: leftMargin , underline: true });
 
     const servicioYDeposito = [
         ["Servicio", data.servicio],
