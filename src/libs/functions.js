@@ -44,7 +44,7 @@ export function buildPDF(data, dataCallback, endCallback) {
         ["Incoterm", data.incoterm],
     ];
 
-    doc.fontSize(12).text("Características del Trabajo", { align: "center", underline: true });
+    doc.fontSize(12).text("Características del Trabajo", { x: leftMargin , underline: true });
     doc.table(
         { headers: ["Atributo", "Valor"], rows: caracteristicasTrabajo },
         { columnsSize: [200, 150], x: leftMargin } // Centra la tabla
