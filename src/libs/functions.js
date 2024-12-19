@@ -6,6 +6,11 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.on("data", dataCallback);
     doc.on("end", endCallback);
 
+    const pageWidth = doc.page.width; // Ancho total de la página
+    const margin = 50; // Margen izquierdo y derecho
+    const tableWidth = 350; // Ancho total de las tablas (200 + 150 de las columnas)
+    const leftMargin = (pageWidth - tableWidth) / 2; // Cálculo del margen izquierdo para centrar
+
     // Agregar el logo
     doc.image("./src/img/logo.png", 50, 20, { width: 50 }); // Ajusta el ancho y la posición según sea necesario
 
@@ -21,10 +26,11 @@ export function buildPDF(data, dataCallback, endCallback) {
         ["Exclusivo", data.exclusivo ? "Sí" : "No"],
     ];
 
+    doc.moveDown();
     doc.fontSize(12).text("Transporte y Tipo", { align: "center", underline: true });
     doc.table(
         { headers: ["Atributo", "Valor"], rows: transporteTipo },
-        { columnsSize: [200, 150] }
+        { columnsSize: [200, 150], x: leftMargin } // Centra la tabla
     );
 
     // Tabla "Características del Trabajo"
@@ -41,7 +47,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.fontSize(12).text("Características del Trabajo", { align: "center", underline: true });
     doc.table(
         { headers: ["Atributo", "Valor"], rows: caracteristicasTrabajo },
-        { columnsSize: [150, 200] }
+        { columnsSize: [200, 150], x: leftMargin } // Centra la tabla
     );
 
     if (data.consolidado) {
@@ -52,7 +58,7 @@ export function buildPDF(data, dataCallback, endCallback) {
         ];
         doc.table(
             { headers: ["Atributo", "Valor"], rows: cargaConsolidada },
-            { columnsSize: [150, 200] }
+            { columnsSize: [200, 150], x: leftMargin } // Centra la tabla
         );
     }
 
@@ -64,7 +70,7 @@ export function buildPDF(data, dataCallback, endCallback) {
         ]);
         doc.table(
             { headers: ["Tipo", "Descripción"], rows: cargasExclusivas },
-            { columnsSize: [150, 200] }
+            { columnsSize: [200, 150], x: leftMargin } // Centra la tabla
         );
     }
 
@@ -81,7 +87,7 @@ export function buildPDF(data, dataCallback, endCallback) {
 
     doc.table(
         { headers: ["Descripción", "Costo"], rows: costos },
-        { columnsSize: [250, 100] }
+        { columnsSize: [200, 150], x: leftMargin } // Centra la tabla
     );
 
     const serviciosExtras = [
@@ -92,7 +98,7 @@ export function buildPDF(data, dataCallback, endCallback) {
 
     doc.table(
         { headers: ["Extras", "Costo"], rows: serviciosExtras },
-        { columnsSize: [250, 100] }
+        { columnsSize: [200, 150], x: leftMargin } // Centra la tabla
     );
 
     // Datos del servicio y depósito (alineado a la izquierda)
@@ -109,7 +115,7 @@ export function buildPDF(data, dataCallback, endCallback) {
 
     doc.table(
         { headers: ["Descripción", "Valor"], rows: servicioYDeposito },
-        { columnsSize: [250, 100] }
+        { columnsSize: [200, 150], x: leftMargin } // Centra la tabla
     );
 
     doc.end();
