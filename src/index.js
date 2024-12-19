@@ -65,6 +65,7 @@ const data = {
 }
 
 app.get("/pdf", (req, res) => {
+  const body = req.body;
   const getFileName = (data) => {
     const empresa = data.empresa.charAt(0).toUpperCase();
     const nombre = data.nombre.charAt(0).toUpperCase();
