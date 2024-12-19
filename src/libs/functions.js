@@ -22,8 +22,8 @@ export function buildPDF(data, dataCallback, endCallback) {
         ["Exclusivo", data.exclusivo ? "Sí" : "No"],
     ];
 
-    doc.fontSize(12).text("Transporte y Tipo", { underline: true });
     doc.moveDown();
+    doc.fontSize(12).text("Transporte y Tipo", { underline: true });
     doc.table(
         { headers: ["Atributo", "Valor"], rows: transporteTipo },
         { columnsSize: [150, 200] }
@@ -42,7 +42,6 @@ export function buildPDF(data, dataCallback, endCallback) {
 
     doc.moveDown();
     doc.fontSize(12).text("Características del Trabajo", { underline: true });
-    doc.moveDown();
     doc.table(
         { headers: ["Atributo", "Valor"], rows: caracteristicasTrabajo },
         { columnsSize: [150, 200] }
@@ -75,7 +74,6 @@ export function buildPDF(data, dataCallback, endCallback) {
     // Costos (alineado a la izquierda)
     doc.moveDown();
     doc.fontSize(14).text("Costos", { underline: true });
-    doc.moveDown();
 
     const costos = [
         ["Gastos de Origen", `$${data.gastos_origen.toFixed(2)}`],
