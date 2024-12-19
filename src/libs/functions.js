@@ -10,9 +10,8 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.image("./src/img/logo.png", 50, 20, { width: 50 }); // Ajusta el ancho y la posición según sea necesario
 
     // Título general debajo del logo
-    doc.fontSize(14)
+    doc.fontSize(16)
         .text("Reporte de Servicio", 0, 80, { align: "center", underline: true }); // Ajusta el valor '80' según la altura del logo
-    doc.moveDown();
 
     // Tabla "Transporte y Tipo"
     const transporteTipo = [
@@ -22,7 +21,6 @@ export function buildPDF(data, dataCallback, endCallback) {
         ["Exclusivo", data.exclusivo ? "Sí" : "No"],
     ];
 
-    doc.moveDown();
     doc.fontSize(12).text("Transporte y Tipo", { underline: true });
     doc.table(
         { headers: ["Atributo", "Valor"], rows: transporteTipo },
@@ -40,7 +38,6 @@ export function buildPDF(data, dataCallback, endCallback) {
         ["Incoterm", data.incoterm],
     ];
 
-    doc.moveDown();
     doc.fontSize(12).text("Características del Trabajo", { underline: true });
     doc.table(
         { headers: ["Atributo", "Valor"], rows: caracteristicasTrabajo },
@@ -60,20 +57,19 @@ export function buildPDF(data, dataCallback, endCallback) {
     }
 
     if (data.exclusivo) {
-        doc.text("Cargas Exclusivas", { underline: true }).moveDown();
+        doc.text("Cargas Exclusivas", { underline: true });
         const cargasExclusivas = data.exclusivo.map((carga) => [
             carga.Tipo,
             `${carga.cantidad} x ${carga.size}`,
         ]);
         doc.table(
             { headers: ["Tipo", "Descripción"], rows: cargasExclusivas },
-            { columnsSize: [150, 300] }
+            { columnsSize: [150, 200] }
         );
     }
 
     // Costos (alineado a la izquierda)
-    doc.moveDown();
-    doc.fontSize(14).text("Costos", { underline: true });
+    doc.fontSize(12).text("Costos", { underline: true });
 
     const costos = [
         ["Gastos de Origen", `$${data.gastos_origen.toFixed(2)}`],
@@ -95,13 +91,12 @@ export function buildPDF(data, dataCallback, endCallback) {
     ];
 
     doc.table(
-        { headers: ["Descripción", "Costo"], rows: serviciosExtras },
+        { headers: ["Extras", "Costo"], rows: serviciosExtras },
         { columnsSize: [250, 100] }
     );
 
     // Datos del servicio y depósito (alineado a la izquierda)
-    doc.moveDown();
-    doc.fontSize(14).text("Datos del Servicio y Depósito", { underline: true });
+    doc.fontSize(12).text("Datos del Servicio y Depósito", { underline: true });
 
     const servicioYDeposito = [
         ["Servicio", data.servicio],
@@ -114,7 +109,7 @@ export function buildPDF(data, dataCallback, endCallback) {
 
     doc.table(
         { headers: ["Descripción", "Valor"], rows: servicioYDeposito },
-        { columnsSize: [250, 200] }
+        { columnsSize: [250, 100] }
     );
 
     doc.end();
