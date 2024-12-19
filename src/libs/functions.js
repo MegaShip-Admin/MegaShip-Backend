@@ -7,7 +7,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.on("end", endCallback);
 
     // Agregar el logo
-    doc.image("./src/img/logo.png", 50, 20, { width: 100 }); // Ajusta el ancho y la posición según sea necesario
+    doc.image("./src/img/logo.png", 50, 20, { width: 50 }); // Ajusta el ancho y la posición según sea necesario
 
     // Título general debajo del logo
     doc.fontSize(14)
