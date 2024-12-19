@@ -12,7 +12,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     // Título general debajo del logo
     doc.fontSize(14)
         .text("Reporte de Servicio", 0, 80, { align: "center", underline: true }); // Ajusta el valor '80' según la altura del logo
-    doc.moveDown(2);
+    doc.moveDown();
 
     // Tabla "Transporte y Tipo"
     const transporteTipo = [
@@ -49,7 +49,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     );
 
     // Características de la Carga (alineado a la izquierda)
-    doc.moveDown(2);
+    doc.moveDown();
     doc.fontSize(14).text("Características de la Carga", { underline: true });
     doc.moveDown();
 
@@ -78,7 +78,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     }
 
     // Costos (alineado a la izquierda)
-    doc.moveDown(2);
+    doc.moveDown();
     doc.fontSize(14).text("Costos", { underline: true });
     doc.moveDown();
 
@@ -108,7 +108,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     );
 
     // Datos del servicio y depósito (alineado a la izquierda)
-    doc.moveDown(2);
+    doc.moveDown();
     doc.fontSize(14).text("Datos del Servicio y Depósito", { underline: true });
 
     const servicioYDeposito = [
