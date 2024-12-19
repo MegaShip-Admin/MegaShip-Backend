@@ -48,11 +48,6 @@ export function buildPDF(data, dataCallback, endCallback) {
         { columnsSize: [150, 200] }
     );
 
-    // Características de la Carga (alineado a la izquierda)
-    doc.moveDown();
-    doc.fontSize(14).text("Características de la Carga", { underline: true });
-    doc.moveDown();
-
     if (data.consolidado) {
         const cargaConsolidada = [
             ["Piezas", data.consolidado.piezas],
@@ -95,7 +90,6 @@ export function buildPDF(data, dataCallback, endCallback) {
         { columnsSize: [250, 100] }
     );
 
-    doc.moveDown();
     const serviciosExtras = [
         ["Unificación de Factura", `$${data.unif_factura.toFixed(2)}`],
         ["TXL", `$${data.txl.toFixed(2)}`],
