@@ -27,7 +27,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     ];
 
     doc.moveDown();
-    doc.fontSize(12).text("Transporte y Tipo", { x: leftMargin , underline: true });
+    doc.fontSize(12).text("Transporte y Tipo", { align: "center" , underline: true });
     doc.table(
         { headers: ["Atributo", "Valor"], rows: transporteTipo },
         { columnsSize: [200, 150], x: leftMargin } // Centra la tabla
