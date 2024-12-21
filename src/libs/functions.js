@@ -13,7 +13,24 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.on("data", dataCallback);
     doc.on("end", endCallback);
 
+    // Bandera para controlar la recursividad en pageAdded
+    let skipHeaders = false;
+
+    // Agregar encabezado y pie de página en cada página
+    doc.on("pageAdded", () => {
+        if (!skipHeaders) {
+            skipHeaders = true;
+            agregarEncabezado(doc);
+            agregarPieDePagina(doc);
+            skipHeaders = false;
+        }
+    });
+
+    // Agregar encabezado a la primera página
+    agregarEncabezado(doc);
+
     const pageWidth = doc.page.width;
+    const margin = 50;
     const tableWidth = 350;
     const leftMargin = (pageWidth - tableWidth) / 2;
 
@@ -21,24 +38,23 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.image("./src/img/logo.png", 50, 20, { width: 50 });
 
     // Título principal
-    doc
-        .font("Helvetica-Bold")
-        .fontSize(16)
-        .text("Megaship Soluciones Logísticas", 0, 80, {
-            align: "center",
-            underline: true,
-        });
+    doc.fontSize(16).text("Megaship Soluciones Logísticas", 0, 80, {
+        align: "center",
+        underline: true,
+    });
 
     // Tabla "Transporte y Tipo"
-    agregarTabla(doc, "Transporte y Tipo", [
+    const transporteTipo = [
         ["Importación", data.importacion ? "Sí" : "No"],
         ["Medio", data.medio],
         ["Consolidado", data.consolidado ? "Sí" : "No"],
         ["Exclusivo", data.exclusivo ? "Sí" : "No"],
-    ], leftMargin);
+    ];
+
+    agregarTabla(doc, "Transporte y Tipo", transporteTipo, leftMargin);
 
     // Tabla "Características del Trabajo"
-    agregarTabla(doc, "Características del Trabajo", [
+    const caracteristicasTrabajo = [
         ["Empresa", data.empresa],
         ["Nombre", data.nombre],
         ["Teléfono", data.telefono],
@@ -46,57 +62,64 @@ export function buildPDF(data, dataCallback, endCallback) {
         ["Origen", data.origen],
         ["Destino", data.destino],
         ["Incoterm", data.incoterm],
-    ], leftMargin);
+    ];
+
+    agregarTabla(doc, "Características del Trabajo", caracteristicasTrabajo, leftMargin);
 
     // Tabla "Carga Consolidada"
     if (data.consolidado) {
-        agregarTabla(doc, "Carga Consolidada", [
+        const cargaConsolidada = [
             ["Piezas", data.consolidado.piezas],
             ["Peso (kg)", data.consolidado.peso],
             ["CBM", data.consolidado.cbm],
-        ], leftMargin);
+        ];
+        agregarTabla(doc, "Carga Consolidada", cargaConsolidada, leftMargin);
     }
 
     // Tabla "Cargas Exclusivas"
     if (data.exclusivo) {
-        agregarTabla(doc, "Cargas Exclusivas", data.exclusivo.map(carga => [
+        const cargasExclusivas = data.exclusivo.map((carga) => [
             carga.Tipo,
             `${carga.cantidad} x ${carga.size}`,
-        ]), leftMargin);
+        ]);
+        agregarTabla(doc, "Cargas Exclusivas", cargasExclusivas, leftMargin);
     }
 
     // Tabla "Costos"
-    agregarTabla(doc, "Costos", [
+    const costos = [
         ["Gastos de Origen", formatearMoneda(data.gastos_origen)],
         ["Tarifa", formatearMoneda(data.tarifa)],
         ["Servicios Administrativos", formatearMoneda(data.serv_admin)],
         ["Handling", formatearMoneda(data.handling)],
         ["Depósito", formatearMoneda(data.deposito)],
-    ], leftMargin);
+    ];
+    agregarTabla(doc, "Costos", costos, leftMargin);
 
-    // Tabla "Extras"
-    agregarTabla(doc, "Extras", [
+    const serviciosExtras = [
         ["Unificación de Factura", formatearMoneda(data.unif_factura)],
         ["TXL", formatearMoneda(data.txl)],
         ["Seguro", formatearMoneda(data.seguro)],
-    ], leftMargin);
+    ];
+    agregarTabla(doc, "Extras", serviciosExtras, leftMargin);
 
     // Tabla "Datos del Servicio y Depósito"
-    agregarTabla(doc, "Datos del Servicio y Depósito", [
+    const servicioYDeposito = [
         ["Servicio", data.servicio],
         ["Tiempo de Tránsito", `${data.tt} días`],
         ["Validez Inicial", data.validez_ini],
         ["Validez Final", data.validez_fin],
         ["Depósito Local", data.deposito_local],
         ["Salida", formatearMoneda(data.salida)],
-    ], leftMargin);
+    ];
+    agregarTabla(doc, "Datos del Servicio y Depósito", servicioYDeposito, leftMargin);
 
-    // Pie de página
-    doc
-        .font("Helvetica")
-        .fontSize(10)
-        .text("Gracias por confiar en Megaship", 0, doc.page.height - 50, {
-            align: "center",
+    // Agregar hipervínculo
+    doc.moveDown(2);
+    doc.font("Helvetica-Bold")
+        .fillColor("blue")
+        .text("Visítanos en nuestro sitio web", leftMargin, doc.y, {
+            link: "https://megaship.com",
+            underline: true,
         });
 
     doc.end();
@@ -110,19 +133,46 @@ export function buildPDF(data, dataCallback, endCallback) {
  * @param {number} margenIzquierdo - Posición horizontal para centrar la tabla.
  */
 function agregarTabla(doc, titulo, filas, margenIzquierdo) {
-    doc
-        .moveDown()
-        .font("Helvetica-Bold")
-        .fontSize(12)
-        .text(titulo, { underline: true });
+    doc.moveDown();
+    doc.fontSize(12).fillColor("#1433C3").text(titulo, { x: margenIzquierdo, underline: true });
     doc.table(
         { headers: ["Descripción", "Valor"], rows: filas },
         {
+            columnsSize: [200, 150],
             x: margenIzquierdo,
-            prepareHeader: () => doc.font("Helvetica-Bold").fontSize(11),
-            prepareRow: (row, i) => doc.font("Helvetica").fontSize(10),
+            prepareHeader: () => {
+                doc.font("Helvetica-Bold").fontSize(11).fillColor("#1433C3");
+            },
+            prepareRow: (row, i) => {
+                doc.font("Helvetica").fontSize(10).fillColor(i % 2 === 0 ? "#000" : "#555");
+            },
+            rowBorderWidth: 0.5,
+            rowBorderColor: "#1433C3",
         }
     );
+}
+
+/**
+ * Agrega un encabezado al documento PDF.
+ * @param {PDFKit.PDFDocument} doc - Documento PDF.
+ */
+function agregarEncabezado(doc) {
+    doc.font("Helvetica-Bold")
+        .fontSize(10)
+        .text("Megaship Soluciones Logísticas", 50, 20);
+    doc.fontSize(8)
+        .text(`Fecha: ${new Date().toLocaleDateString()}`, doc.page.width - 100, 20, { align: "right" });
+}
+
+/**
+ * Agrega un pie de página al documento PDF.
+ * @param {PDFKit.PDFDocument} doc - Documento PDF.
+ */
+function agregarPieDePagina(doc) {
+    doc.font("Helvetica")
+        .fontSize(8)
+        .text("Contacto: info@megaship.com | Teléfono: +1 234 567 890", 50, doc.page.height - 40, { align: "center" });
+    doc.text(`Página ${doc.pageNumber}`, doc.page.width - 50, doc.page.height - 40, { align: "right" });
 }
 
 /**
@@ -133,7 +183,6 @@ function agregarTabla(doc, titulo, filas, margenIzquierdo) {
 function formatearMoneda(valor) {
     return `$${valor.toFixed(2)}`;
 }
-
 
 /**
  * Obtiene todos los registros de una tabla en Supabase.
