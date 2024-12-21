@@ -1,7 +1,10 @@
 import PDFDocument from "pdfkit-table";
 
 /**
- * Construye un documento PDF profesional basado en los datos proporcionados.
+ * Construye un documento PDF basado en los datos proporcionados.
+ * @param {object} data - Datos utilizados para construir el PDF.
+ * @param {function} dataCallback - Callback para los datos generados.
+ * @param {function} endCallback - Callback para el final del proceso.
  */
 export function buildPDF(data, dataCallback, endCallback) {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
@@ -10,48 +13,32 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.on("data", dataCallback);
     doc.on("end", endCallback);
 
-    // Agregar logo y encabezado
-    doc.image("./src/img/logo.png", 50, 30, { width: 50 });
-    doc.fontSize(18).font("Helvetica-Bold").text("Megaship Soluciones Logísticas", 110, 40, {
-        align: "center",
-    });
-    doc.moveDown(1);
+    const pageWidth = doc.page.width;
+    const tableWidth = 350;
+    const leftMargin = (pageWidth - tableWidth) / 2;
 
-    // Configurar diseño general
-    const createStyledTable = (title, rows) => {
-        doc
-            .moveDown(0.5)
-            .fontSize(14)
-            .font("Helvetica-Bold")
-            .text(title, { underline: true });
-        doc.moveDown(0.2);
+    // Agregar el logo
+    doc.image("./src/img/logo.png", 50, 20, { width: 50 });
 
-        doc.table(
-            {
-                headers: ["Atributo", "Valor"],
-                rows,
-            },
-            {
-                prepareHeader: () => doc.font("Helvetica-Bold").fontSize(12),
-                prepareRow: (row, i) => {
-                    doc.font("Helvetica").fontSize(11);
-                    if (i % 2 !== 0) {
-                        doc.fillColor("#f2f2f2").rect(doc.x, doc.y, 500, 15).fill().fillColor("black");
-                    }
-                },
-            }
-        );
-    };
+    // Título principal
+    doc
+        .font("Helvetica-Bold")
+        .fontSize(16)
+        .text("Megaship Soluciones Logísticas", 0, 80, {
+            align: "center",
+            underline: true,
+        });
 
-    // Tablas con datos
-    createStyledTable("Transporte y Tipo", [
+    // Tabla "Transporte y Tipo"
+    agregarTabla(doc, "Transporte y Tipo", [
         ["Importación", data.importacion ? "Sí" : "No"],
         ["Medio", data.medio],
         ["Consolidado", data.consolidado ? "Sí" : "No"],
         ["Exclusivo", data.exclusivo ? "Sí" : "No"],
-    ]);
+    ], leftMargin);
 
-    createStyledTable("Características del Trabajo", [
+    // Tabla "Características del Trabajo"
+    agregarTabla(doc, "Características del Trabajo", [
         ["Empresa", data.empresa],
         ["Nombre", data.nombre],
         ["Teléfono", data.telefono],
@@ -59,51 +46,60 @@ export function buildPDF(data, dataCallback, endCallback) {
         ["Origen", data.origen],
         ["Destino", data.destino],
         ["Incoterm", data.incoterm],
-    ]);
+    ], leftMargin);
 
-    if (data.exclusivo) {
-        createStyledTable(
-            "Cargas Exclusivas",
-            data.exclusivo.map((carga) => [carga.Tipo, `${carga.cantidad} x ${carga.size}`])
-        );
+    // Tabla "Carga Consolidada"
+    if (data.consolidado) {
+        agregarTabla(doc, "Carga Consolidada", [
+            ["Piezas", data.consolidado.piezas],
+            ["Peso (kg)", data.consolidado.peso],
+            ["CBM", data.consolidado.cbm],
+        ], leftMargin);
     }
 
-    createStyledTable("Costos", [
+    // Tabla "Cargas Exclusivas"
+    if (data.exclusivo) {
+        agregarTabla(doc, "Cargas Exclusivas", data.exclusivo.map(carga => [
+            carga.Tipo,
+            `${carga.cantidad} x ${carga.size}`,
+        ]), leftMargin);
+    }
+
+    // Tabla "Costos"
+    agregarTabla(doc, "Costos", [
         ["Gastos de Origen", formatearMoneda(data.gastos_origen)],
         ["Tarifa", formatearMoneda(data.tarifa)],
         ["Servicios Administrativos", formatearMoneda(data.serv_admin)],
         ["Handling", formatearMoneda(data.handling)],
         ["Depósito", formatearMoneda(data.deposito)],
-    ]);
+    ], leftMargin);
 
-    createStyledTable("Extras", [
+    // Tabla "Extras"
+    agregarTabla(doc, "Extras", [
         ["Unificación de Factura", formatearMoneda(data.unif_factura)],
         ["TXL", formatearMoneda(data.txl)],
         ["Seguro", formatearMoneda(data.seguro)],
-    ]);
+    ], leftMargin);
 
-    createStyledTable("Datos del Servicio y Depósito", [
+    // Tabla "Datos del Servicio y Depósito"
+    agregarTabla(doc, "Datos del Servicio y Depósito", [
         ["Servicio", data.servicio],
         ["Tiempo de Tránsito", `${data.tt} días`],
         ["Validez Inicial", data.validez_ini],
         ["Validez Final", data.validez_fin],
         ["Depósito Local", data.deposito_local],
         ["Salida", formatearMoneda(data.salida)],
-    ]);
+    ], leftMargin);
 
     // Pie de página
-    doc.fontSize(10).text("Gracias por confiar en Megaship", 50, doc.page.height - 50, {
-        align: "center",
-    });
+    doc
+        .font("Helvetica")
+        .fontSize(10)
+        .text("Gracias por confiar en Megaship", 0, doc.page.height - 50, {
+            align: "center",
+        });
 
     doc.end();
-}
-
-/**
- * Formatea una cantidad como moneda.
- */
-function formatearMoneda(cantidad) {
-    return `$${cantidad.toFixed(2)}`;
 }
 
 /**
@@ -114,11 +110,18 @@ function formatearMoneda(cantidad) {
  * @param {number} margenIzquierdo - Posición horizontal para centrar la tabla.
  */
 function agregarTabla(doc, titulo, filas, margenIzquierdo) {
-    doc.moveDown();
-    doc.fontSize(12).text(titulo, { x: margenIzquierdo, underline: true });
+    doc
+        .moveDown()
+        .font("Helvetica-Bold")
+        .fontSize(12)
+        .text(titulo, { underline: true });
     doc.table(
         { headers: ["Descripción", "Valor"], rows: filas },
-        { columnsSize: [200, 150], x: margenIzquierdo }
+        {
+            x: margenIzquierdo,
+            prepareHeader: () => doc.font("Helvetica-Bold").fontSize(11),
+            prepareRow: (row, i) => doc.font("Helvetica").fontSize(10),
+        }
     );
 }
 
@@ -130,6 +133,7 @@ function agregarTabla(doc, titulo, filas, margenIzquierdo) {
 function formatearMoneda(valor) {
     return `$${valor.toFixed(2)}`;
 }
+
 
 /**
  * Obtiene todos los registros de una tabla en Supabase.

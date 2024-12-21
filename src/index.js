@@ -65,12 +65,14 @@ const pdf = {
   "salida" : 0
 }
 
-app.post("/pdf", (req, res) => {
-    const body = req.body;
+app.get("/pdf", (req, res) => {
+    /**
+     *   const body = req.body;
 
     if (!body || !body.empresa || !body.nombre || !body.origen || !body.destino || !body.validez_fin || !body.incoterm) {
         return res.status(400).send("Datos incompletos para generar el PDF.");
     }
+        */
 
     const getFileName = (data) => {
         const empresa = data.empresa.charAt(0).toUpperCase();
