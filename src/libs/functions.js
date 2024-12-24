@@ -1,22 +1,13 @@
 import PDFDocument from "pdfkit-table";
 
-/**
- * Construye un documento PDF basado en los datos proporcionados.
- * @param {object} data - Datos utilizados para construir el PDF.
- * @param {function} dataCallback - Callback para los datos generados.
- * @param {function} endCallback - Callback para el final del proceso.
- */
 export function buildPDF(data, dataCallback, endCallback) {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
 
-    // Configurar eventos del documento
     doc.on("data", dataCallback);
     doc.on("end", endCallback);
 
-    // Bandera para controlar la recursividad en pageAdded
     let skipHeaders = false;
 
-    // Agregar encabezado y pie de página en cada página
     doc.on("pageAdded", () => {
         if (!skipHeaders) {
             skipHeaders = true;
@@ -26,45 +17,31 @@ export function buildPDF(data, dataCallback, endCallback) {
         }
     });
 
-    // Agregar encabezado a la primera página
     agregarEncabezado(doc);
 
     const pageWidth = doc.page.width;
     const margin = 50;
-    const tableWidth = 350;
-    const leftMargin = (pageWidth - tableWidth) / 2;
+    const tableWidth = pageWidth - margin * 2;
 
-    // Agregar el logo
     doc.image("./src/img/logo.png", 50, 20, { width: 50 });
 
-    // Título principal
     doc.fontSize(16).fillColor("#724D93").text("Megaship Soluciones Logísticas", 0, 80, {
         align: "center",
         underline: true,
     });
 
-    // Tabla "Transporte y Tipo"
-    const transporteTipo = [
-        ["Importación", data.importacion ? "Sí" : "No"],
-        ["Medio", data.medio],
-        ["Consolidado", data.consolidado ? "Sí" : "No"],
-        ["Exclusivo", data.exclusivo ? "Sí" : "No"],
+    // Tabla combinada: "Transporte y Tipo" y "Características del Trabajo"
+    const transporteYTrabajo = [
+        ["Transporte y Tipo", data.importacion ? "Sí" : "No", "Características del Trabajo", data.empresa],
+        ["", data.medio, "", data.nombre],
+        ["", data.consolidado ? "Sí" : "No", "", data.telefono],
+        ["", data.exclusivo ? "Sí" : "No", "", data.email],
+        ["", "", "", data.origen],
+        ["", "", "", data.destino],
+        ["", "", "", data.incoterm],
     ];
 
-    agregarTabla(doc, "Transporte y Tipo", transporteTipo, leftMargin);
-
-    // Tabla "Características del Trabajo"
-    const caracteristicasTrabajo = [
-        ["Empresa", data.empresa],
-        ["Nombre", data.nombre],
-        ["Teléfono", data.telefono],
-        ["Email", data.email],
-        ["Origen", data.origen],
-        ["Destino", data.destino],
-        ["Incoterm", data.incoterm],
-    ];
-
-    agregarTabla(doc, "Características del Trabajo", caracteristicasTrabajo, leftMargin);
+    agregarTablaCombinada(doc, transporteYTrabajo, tableWidth);
 
     // Tabla "Carga Consolidada"
     if (data.consolidado) {
@@ -73,7 +50,7 @@ export function buildPDF(data, dataCallback, endCallback) {
             ["Peso (kg)", data.consolidado.peso],
             ["CBM", data.consolidado.cbm],
         ];
-        agregarTabla(doc, "Carga Consolidada", cargaConsolidada, leftMargin);
+        agregarTabla(doc, "Carga Consolidada", cargaConsolidada, tableWidth);
     }
 
     // Tabla "Cargas Exclusivas"
@@ -82,25 +59,19 @@ export function buildPDF(data, dataCallback, endCallback) {
             carga.Tipo,
             `${carga.cantidad} x ${carga.size}`,
         ]);
-        agregarTabla(doc, "Cargas Exclusivas", cargasExclusivas, leftMargin);
+        agregarTabla(doc, "Cargas Exclusivas", cargasExclusivas, tableWidth);
     }
 
-    // Tabla "Costos"
-    const costos = [
-        ["Gastos de Origen", formatearMoneda(data.gastos_origen)],
-        ["Tarifa", formatearMoneda(data.tarifa)],
-        ["Servicios Administrativos", formatearMoneda(data.serv_admin)],
-        ["Handling", formatearMoneda(data.handling)],
-        ["Depósito", formatearMoneda(data.deposito)],
+    // Tabla combinada: "Costos" y "Extras"
+    const costosYExtras = [
+        ["Costos", formatearMoneda(data.gastos_origen), "Extras", formatearMoneda(data.unif_factura)],
+        ["", formatearMoneda(data.tarifa), "", formatearMoneda(data.txl)],
+        ["", formatearMoneda(data.serv_admin), "", formatearMoneda(data.seguro)],
+        ["", formatearMoneda(data.handling), "", ""],
+        ["", formatearMoneda(data.deposito), "", ""],
     ];
-    agregarTabla(doc, "Costos", costos, leftMargin);
 
-    const serviciosExtras = [
-        ["Unificación de Factura", formatearMoneda(data.unif_factura)],
-        ["TXL", formatearMoneda(data.txl)],
-        ["Seguro", formatearMoneda(data.seguro)],
-    ];
-    agregarTabla(doc, "Extras", serviciosExtras, leftMargin);
+    agregarTablaCombinada(doc, costosYExtras, tableWidth);
 
     // Tabla "Datos del Servicio y Depósito"
     const servicioYDeposito = [
@@ -111,13 +82,12 @@ export function buildPDF(data, dataCallback, endCallback) {
         ["Depósito Local", data.deposito_local],
         ["Salida", formatearMoneda(data.salida)],
     ];
-    agregarTabla(doc, "Datos del Servicio y Depósito", servicioYDeposito, leftMargin);
+    agregarTabla(doc, "Datos del Servicio y Depósito", servicioYDeposito, tableWidth);
 
-    // Agregar hipervínculo
     doc.moveDown(2);
     doc.font("Helvetica-Bold")
         .fillColor("#724D93")
-        .text("Visítanos en nuestro sitio web", leftMargin, doc.y, {
+        .text("Visítanos en nuestro sitio web", margin, doc.y, {
             link: "https://www.megaship.com.uy/",
             underline: true,
         });
@@ -125,24 +95,17 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.end();
 }
 
-/**
- * Agrega una tabla al documento PDF con un título.
- * @param {PDFKit.PDFDocument} doc - Documento PDF.
- * @param {string} titulo - Título de la tabla.
- * @param {Array} filas - Datos de la tabla.
- * @param {number} margenIzquierdo - Posición horizontal para centrar la tabla.
- */
-function agregarTabla(doc, titulo, filas, margenIzquierdo) {
+function agregarTablaCombinada(doc, filas, tableWidth) {
     doc.moveDown();
-    doc.fontSize(12).fillColor("#724D93").text(titulo, { x: margenIzquierdo });
     doc.table(
-        { headers: ["Descripción", "Valor"], rows: filas },
         {
-            columnsSize: [200, 150],
-            x: margenIzquierdo,
-            prepareHeader: () => {
-                doc.font("Helvetica-Bold").fontSize(11).fillColor("#724D93");
-            },
+            headers: ["", "", "", ""], // No encabezados visibles
+            rows: filas,
+        },
+        {
+            x: 50,
+            width: tableWidth,
+            columnsSize: [150, 150, 150, 150],
             prepareRow: (row, i) => {
                 doc.font("Helvetica").fontSize(10).fillColor(i % 2 === 0 ? "#000" : "#555");
             },
@@ -152,10 +115,27 @@ function agregarTabla(doc, titulo, filas, margenIzquierdo) {
     );
 }
 
-/**
- * Agrega un encabezado al documento PDF.
- * @param {PDFKit.PDFDocument} doc - Documento PDF.
- */
+function agregarTabla(doc, titulo, filas, tableWidth) {
+    doc.moveDown();
+    doc.fontSize(12).fillColor("#724D93").text(titulo, { align: "left" });
+    doc.table(
+        {
+            headers: ["", ""], // Sin encabezados visibles
+            rows: filas,
+        },
+        {
+            x: 50,
+            width: tableWidth,
+            columnsSize: [150, 150],
+            prepareRow: (row, i) => {
+                doc.font("Helvetica").fontSize(10).fillColor(i % 2 === 0 ? "#000" : "#555");
+            },
+            rowBorderWidth: 0.5,
+            rowBorderColor: "#724D93",
+        }
+    );
+}
+
 function agregarEncabezado(doc) {
     doc.font("Helvetica-Bold")
         .fontSize(10)
@@ -164,10 +144,6 @@ function agregarEncabezado(doc) {
         .text(`Fecha: ${new Date().toLocaleDateString()}`, doc.page.width - 100, 20, { align: "right" });
 }
 
-/**
- * Agrega un pie de página al documento PDF.
- * @param {PDFKit.PDFDocument} doc - Documento PDF.
- */
 function agregarPieDePagina(doc) {
     doc.font("Helvetica")
         .fontSize(8)
@@ -175,11 +151,6 @@ function agregarPieDePagina(doc) {
     doc.text(`Página ${doc.pageNumber}`, doc.page.width - 50, doc.page.height - 40, { align: "right" });
 }
 
-/**
- * Formatea un número como moneda.
- * @param {number} valor - Valor a formatear.
- * @returns {string} - Valor formateado como moneda.
- */
 function formatearMoneda(valor) {
     return `$${valor.toFixed(2)}`;
 }
