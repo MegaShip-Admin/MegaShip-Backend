@@ -38,7 +38,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.image("./src/img/logo.png", 50, 20, { width: 50 });
 
     // Título principal
-    doc.fontSize(16).text("Megaship Soluciones Logísticas", 0, 80, {
+    doc.fontSize(16).fillColor("#724D93").text("Megaship Soluciones Logísticas", 0, 80, {
         align: "center",
         underline: true,
     });
@@ -116,9 +116,9 @@ export function buildPDF(data, dataCallback, endCallback) {
     // Agregar hipervínculo
     doc.moveDown(2);
     doc.font("Helvetica-Bold")
-        .fillColor("blue")
+        .fillColor("#724D93")
         .text("Visítanos en nuestro sitio web", leftMargin, doc.y, {
-            link: "https://megaship.com",
+            link: "https://www.megaship.com.uy/",
             underline: true,
         });
 
@@ -134,20 +134,20 @@ export function buildPDF(data, dataCallback, endCallback) {
  */
 function agregarTabla(doc, titulo, filas, margenIzquierdo) {
     doc.moveDown();
-    doc.fontSize(12).fillColor("#1433C3").text(titulo, { x: margenIzquierdo, underline: true });
+    doc.fontSize(12).fillColor("#724D93").text(titulo, { x: margenIzquierdo });
     doc.table(
         { headers: ["Descripción", "Valor"], rows: filas },
         {
             columnsSize: [200, 150],
             x: margenIzquierdo,
             prepareHeader: () => {
-                doc.font("Helvetica-Bold").fontSize(11).fillColor("#1433C3");
+                doc.font("Helvetica-Bold").fontSize(11).fillColor("#724D93");
             },
             prepareRow: (row, i) => {
                 doc.font("Helvetica").fontSize(10).fillColor(i % 2 === 0 ? "#000" : "#555");
             },
             rowBorderWidth: 0.5,
-            rowBorderColor: "#1433C3",
+            rowBorderColor: "#724D93",
         }
     );
 }
