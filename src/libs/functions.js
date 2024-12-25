@@ -22,6 +22,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     const pageWidth = doc.page.width;
     const margin = 50;
     const tableWidth = pageWidth - margin * 2;
+    const narrowTableWidth = tableWidth * 0.8; // Tablas de 4 columnas más estrechas
 
     doc.image("./src/img/logo.png", 50, 20, { width: 50 });
 
@@ -32,16 +33,16 @@ export function buildPDF(data, dataCallback, endCallback) {
 
     // Tabla combinada: "Transporte y Tipo" y "Características del Trabajo"
     const transporteYTrabajo = [
-        ["Transporte y Tipo", data.importacion ? "Sí" : "No", "Características del Trabajo", data.empresa],
-        ["", data.medio, "", data.nombre],
-        ["", data.consolidado ? "Sí" : "No", "", data.telefono],
-        ["", data.exclusivo ? "Sí" : "No", "", data.email],
-        ["", "", "", data.origen],
-        ["", "", "", data.destino],
-        ["", "", "", data.incoterm],
+        ["Importación", data.importacion ? "Sí" : "No", "Empresa", data.empresa],
+        ["Medio", data.medio, "Nombre", data.nombre],
+        ["Consolidado", data.consolidado ? "Sí" : "No", "Teléfono", data.telefono],
+        ["Exclusivo", data.exclusivo ? "Sí" : "No", "Email", data.email],
+        ["", "", "Origen", data.origen],
+        ["", "", "Destino", data.destino],
+        ["", "", "Incoterm", data.incoterm],
     ];
 
-    agregarTablaCombinada(doc, transporteYTrabajo, tableWidth);
+    agregarTablaCombinada(doc, "Transporte y Tipo", "Características del Trabajo", transporteYTrabajo, narrowTableWidth);
 
     // Tabla "Carga Consolidada"
     if (data.consolidado) {
@@ -64,14 +65,14 @@ export function buildPDF(data, dataCallback, endCallback) {
 
     // Tabla combinada: "Costos" y "Extras"
     const costosYExtras = [
-        ["Costos", formatearMoneda(data.gastos_origen), "Extras", formatearMoneda(data.unif_factura)],
-        ["", formatearMoneda(data.tarifa), "", formatearMoneda(data.txl)],
-        ["", formatearMoneda(data.serv_admin), "", formatearMoneda(data.seguro)],
-        ["", formatearMoneda(data.handling), "", ""],
-        ["", formatearMoneda(data.deposito), "", ""],
+        ["Gastos Origen", formatearMoneda(data.gastos_origen), "Unificación Factura", formatearMoneda(data.unif_factura)],
+        ["Tarifa", formatearMoneda(data.tarifa), "TXL", formatearMoneda(data.txl)],
+        ["Serv. Administrativo", formatearMoneda(data.serv_admin), "Seguro", formatearMoneda(data.seguro)],
+        ["Handling", formatearMoneda(data.handling), "", ""],
+        ["Depósito", formatearMoneda(data.deposito), "", ""],
     ];
 
-    agregarTablaCombinada(doc, costosYExtras, tableWidth);
+    agregarTablaCombinada(doc, "Costos", "Extras", costosYExtras, narrowTableWidth);
 
     // Tabla "Datos del Servicio y Depósito"
     const servicioYDeposito = [
@@ -95,17 +96,17 @@ export function buildPDF(data, dataCallback, endCallback) {
     doc.end();
 }
 
-function agregarTablaCombinada(doc, filas, tableWidth) {
+function agregarTablaCombinada(doc, tituloIzquierdo, tituloDerecho, filas, tableWidth) {
     doc.moveDown();
     doc.table(
         {
-            headers: ["", "", "", ""], // No encabezados visibles
+            headers: [tituloIzquierdo, "", tituloDerecho, ""],
             rows: filas,
         },
         {
             x: 50,
             width: tableWidth,
-            columnsSize: [150, 150, 150, 150],
+            columnsSize: [100, 125, 100, 125], // Más estrechas
             prepareRow: (row, i) => {
                 doc.font("Helvetica").fontSize(10).fillColor(i % 2 === 0 ? "#000" : "#555");
             },
