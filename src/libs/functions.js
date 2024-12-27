@@ -24,7 +24,7 @@ export function buildPDF(data, dataCallback, endCallback) {
     const tableWidth = pageWidth - margin * 2;
     const narrowTableWidth = tableWidth * 0.8; // Tablas de 4 columnas más estrechas
 
-    doc.image("./src/img/logo.png", 50, 20, { width: 50 });
+    doc.image("./src/img/logo.png", 50, 50, { width: 50 });
 
     doc.fontSize(16).fillColor("#724D93").text("Megaship Soluciones Logísticas", 0, 80, {
         align: "center",
@@ -100,13 +100,13 @@ function agregarTablaCombinada(doc, tituloIzquierdo, tituloDerecho, filas, table
     doc.moveDown();
     doc.table(
         {
-            headers: [tituloIzquierdo, "", tituloDerecho, ""],
+            headers: [tituloIzquierdo, "Valor", tituloDerecho, "Valor"],
             rows: filas,
         },
         {
             x: 50,
             width: tableWidth,
-            columnsSize: [100, 125, 100, 125], // Más estrechas
+            columnsSize: [125, 125, 125, 125],
             prepareRow: (row, i) => {
                 doc.font("Helvetica").fontSize(10).fillColor(i % 2 === 0 ? "#000" : "#555");
             },
@@ -118,16 +118,15 @@ function agregarTablaCombinada(doc, tituloIzquierdo, tituloDerecho, filas, table
 
 function agregarTabla(doc, titulo, filas, tableWidth) {
     doc.moveDown();
-    doc.fontSize(12).fillColor("#724D93").text(titulo, { align: "left" });
     doc.table(
         {
-            headers: ["", ""], // Sin encabezados visibles
+            headers: [titulo, "Valor"],
             rows: filas,
         },
         {
             x: 50,
             width: tableWidth,
-            columnsSize: [150, 150],
+            columnsSize: [250, 250],
             prepareRow: (row, i) => {
                 doc.font("Helvetica").fontSize(10).fillColor(i % 2 === 0 ? "#000" : "#555");
             },
@@ -148,7 +147,7 @@ function agregarEncabezado(doc) {
 function agregarPieDePagina(doc) {
     doc.font("Helvetica")
         .fontSize(8)
-        .text("Contacto: info@megaship.com | Teléfono: +1 234 567 890", 50, doc.page.height - 40, { align: "center" });
+        .text("Contacto: info@megaship.com | Teléfono: 2903 9713", 50, doc.page.height - 40, { align: "center" });
     doc.text(`Página ${doc.pageNumber}`, doc.page.width - 50, doc.page.height - 40, { align: "right" });
 }
 
@@ -190,6 +189,32 @@ export async function createCommon() {
     } catch (err) {
         console.error("Unexpected error in createCommon:", err);
         return "Error inesperado al crear Common.";
+    }
+}
+
+/**
+ * Crea un nuevo registro en una tabla específica.
+ * @param {string} tableName - Nombre de la tabla donde se creará el registro.
+ * @param {string} id - ID del registro común asociado.
+ * @param {Object} body - Datos del nuevo registro.
+ * @returns {Array|null|string} - Datos creados, null o un mensaje de error.
+ */
+export async function createTable(tableName, id, body) {
+    try {
+        const { data, error } = await supabase
+            .from(tableName)
+            .insert({ id, ...body })
+            .select();
+
+        if (error) {
+            console.error(`Error creando registro en la tabla ${tableName}:`, error);
+            return null;
+        }
+
+        return data;
+    } catch (err) {
+        console.error(`Error inesperado al crear registro en la tabla ${tableName}:`, err);
+        return "Unexpected error occurred.";
     }
 }
 

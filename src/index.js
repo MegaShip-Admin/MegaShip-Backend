@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
-import { buildPDF, getData, createCommon, createTrabajo, createImportacion, createExportacion, 
+import { buildPDF, getData, createCommon, createTrabajo, createImportacion, createExportacion, createTable, 
     updateTrabajo, getDataByEmail, updateData, createVariable, createVendedor, updateVendedor, getVendedores } from "./libs/functions.js";
 
 // Configuración de Supabase
@@ -100,18 +100,42 @@ app.get("/pdf", (req, res) => {
     }
 });
 
-app.get("/variables", async (req, res) => {
-    try {
-        const data = await getData('Variable');
+app.get("/trabajos", async (req, res) => {
+    const data = await getData('Trabajo');
+    res.json(data);
+  });
 
-        if (!data || data.length === 0) {
-            return res.status(404).json({ error: "No se encontraron variables." });
+app.post("/variables/:clase", async (req, res) => {
+    try {
+        const { clase } = req.params; // Nombre de la tabla (clase).
+        const body = req.body; // Datos para el nuevo registro.
+
+        // Verifica si el nombre de la tabla es válido.
+        if (!clase || typeof clase !== 'string') {
+            return res.status(400).json({ error: "Clase no válida." });
         }
 
-        res.json(data);
+        // Crea un registro en la tabla Common y obtiene el ID asociado.
+        const id = await createCommon();
+
+        // Verifica si no se pudo generar el ID.
+        if (!id) {
+            return res.status(500).json({ error: "Error al crear el registro común." });
+        }
+
+        // Llama a una función genérica para crear un registro en la tabla específica.
+        const result = await createTable(clase, id, body);
+
+        // Verifica si hubo algún error al crear el registro en la tabla específica.
+        if (!result) {
+            return res.status(500).json({ error: `Error al crear el registro en la tabla ${clase}.` });
+        }
+
+        // Devuelve la respuesta exitosa con los datos creados.
+        return res.status(201).json({ success: true, data: result });
     } catch (err) {
-        console.error("Error fetching variables:", err);
-        res.status(500).json({ error: "Error al obtener variables." });
+        console.error("Error en la ruta /variables/:clase:", err);
+        return res.status(500).json({ error: "Error inesperado." });
     }
 });
 
@@ -236,7 +260,7 @@ app.put("/trabajos", async (req, res) => {
 });
 
 // POST /vendedor: Autentica un vendedor basado en email y contraseña.
-app.post("/vendedor", async (req, res) => {
+app.post("/vendedor/:email", async (req, res) => {
     const { email, password } = req.body; // Desestructuración para mayor claridad.
   
     if (!email || !password) {
