@@ -101,8 +101,48 @@ app.get("/pdf", (req, res) => {
 });
 
 app.get("/trabajos", async (req, res) => {
-    const data = await getData('Trabajo');
-    res.json(data);
+    try {
+        const data = await getData('Trabajo');
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({ error: "No se encontraron registros en trabajos." });
+        }
+
+        res.json(data);
+    } catch (err) {
+        console.error("Error fetching trabajo:", err);
+        res.status(500).json({ error: "Error al obtener trabajo." });
+    }
+  });
+
+app.get("/incoterms", async (req, res) => {
+    try {
+        const data = await getData('Incoterms');
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({ error: "No se encontraron registros en incoterms." });
+        }
+
+        res.json(data);
+    } catch (err) {
+        console.error("Error fetching incoterms:", err);
+        res.status(500).json({ error: "Error al obtener incoterms." });
+    }
+});
+
+app.get("/clientes", async (req, res) => {
+    try {
+        const data = await getData('Cliente');
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({ error: "No se encontraron registros en clientes." });
+        }
+
+        res.json(data);
+    } catch (err) {
+        console.error("Error fetching clientes:", err);
+        res.status(500).json({ error: "Error al obtener clientes." });
+    }
   });
 
 app.post("/variables/:clase", async (req, res) => {
