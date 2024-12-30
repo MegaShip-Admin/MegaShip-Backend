@@ -498,3 +498,53 @@ export async function getVendedores() {
         return null;
     }
 }
+
+/**
+ * Crea un nuevo registro en la tabla 'Exclusivo'.
+ * @param {string} id - ID asociado al registro.
+ * @param {object} body - Datos del registro a crear.
+ * @returns {array|null|string} - Datos creados, null o un mensaje de error.
+ */
+export async function createExclusivo(id, body) {
+    try {
+        const { data, error } = await supabase
+            .from('Exclusivo')
+            .insert({ id, ...body })
+            .select();
+
+        if (error) {
+            console.error("Error creating Exclusivo:", error);
+            return error.message;
+        }
+
+        return data;
+    } catch (err) {
+        console.error("Unexpected error in createExclusivo:", err);
+        return "Error inesperado al crear Exclusivo.";
+    }
+}
+
+/**
+ * Elimina un registro de la tabla 'Exclusivo' por ID.
+ * @param {string} id - ID del registro a eliminar.
+ * @returns {array|null|string} - Datos eliminados, null o un mensaje de error.
+ */
+export async function deleteExclusivo(id) {
+    try {
+        const { data, error } = await supabase
+            .from('Exclusivo')
+            .delete()
+            .eq('id', id)
+            .select();
+
+        if (error) {
+            console.error("Error deleting Exclusivo:", error);
+            return error.message;
+        }
+
+        return data;
+    } catch (err) {
+        console.error("Unexpected error in deleteExclusivo:", err);
+        return "Error inesperado al eliminar Exclusivo.";
+    }
+}

@@ -2,8 +2,8 @@ import express from "express";
 import bodyParser from "body-parser";
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
-import { buildPDF, getData, createCommon, createTrabajo, createImportacion, createExportacion, createTable, 
-    updateTrabajo, getDataByEmail, updateData, createVariable, createVendedor, updateVendedor, getVendedores } from "./libs/functions.js";
+import { buildPDF, getData, createCommon, createTrabajo, createImportacion, createExportacion, createTable, createExclusivo,
+    updateTrabajo, getDataByEmail, updateData, createVariable, createVendedor, updateVendedor, getVendedores, deleteExclusivo } from "./libs/functions.js";
 
 // Configuración de Supabase
 const supabaseUrl = 'https://cyfllxdbwhsnlymltmjk.supabase.co';
@@ -568,6 +568,41 @@ app.patch("/vendedor/estado/:id", async (req, res) => {
         // Manejo de errores inesperados.
         console.error("Error al actualizar el estado del vendedor:", err);
         res.status(500).json({ error: "Error interno del servidor al actualizar el estado del vendedor." });
+    }
+});
+
+/**
+ * Ruta para crear un nuevo registro en la tabla 'Exclusivo'.
+ * @route POST /exclusivo
+ * @param {object} req.body - Datos del nuevo registro.
+ * @returns {object} - Datos creados o mensaje de error.
+ */
+app.post("/exclusivo", async (req, res) => {
+    const body = req.body;
+    try {
+        const id = await createCommon(); // Crea un registro común y obtiene el ID.
+        const data = await createExclusivo(id, body); // Crea el registro en la tabla 'Exclusivo'.
+        res.json(data); // Devuelve los datos creados.
+    } catch (err) {
+        console.error("Error in POST /exclusivo:", err);
+        res.status(500).send("Error al crear el registro.");
+    }
+});
+
+/**
+ * Ruta para eliminar un registro de la tabla 'Exclusivo' por ID.
+ * @route DELETE /exclusivo/:id
+ * @param {string} req.params.id - ID del registro a eliminar.
+ * @returns {object} - Datos eliminados o mensaje de error.
+ */
+app.delete("/exclusivo/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        const data = await deleteExclusivo(id); // Elimina el registro con el ID proporcionado.
+        res.json(data); // Devuelve los datos eliminados.
+    } catch (err) {
+        console.error("Error in DELETE /exclusivo/:id:", err);
+        res.status(500).send("Error al eliminar el registro.");
     }
 });
 
