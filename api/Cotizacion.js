@@ -24,6 +24,31 @@ async function createCommon() {
   }
 }
 
+async function createExclusivo(id, body) {
+  try {
+    const { data, error } = await supabase
+      .from('Exclusivo')
+      .insert({id, ...body})
+      .select()
+      return(data)
+  } catch {
+    return ("error")
+  }
+}
+
+async function deleteExclusivo(id) {
+  try {
+    const { data, error } = await supabase
+      .from('Exclusivo')
+      .delete()
+      .eq('id', id)
+      .select()
+      return(data)
+  } catch {
+    return ("error")
+  }
+}
+
 async function createTrabajo(id, body) {
   try {
     const { data, error } = await supabase
@@ -172,5 +197,26 @@ app.post("/trabajos/exportacion", async (req, res) => {
     res.json(data)
   } catch {
     res.send("no we")
+  }
+})
+
+app.post("/exclusivo", async (req, res) => {
+  const body = req.body
+  try {
+    const id = await createCommon()
+    const data = await createExclusivo(id, body)
+    res.json(data)
+  } catch {
+    res.send("hola soy error")
+  }
+})
+
+app.delete("/exclusivo/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const data = await deleteExclusivo(id)
+    res.json(data)
+  } catch {
+    res.send("hola soy error")
   }
 })

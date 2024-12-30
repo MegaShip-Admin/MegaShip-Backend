@@ -78,3 +78,15 @@ Content-Type: application/json
     "cliente": 10,
     "costo": 2000
 }
+###
+POST http://localhost:3000/exclusivo HTTP/1.1
+Content-Type: application/json
+
+{
+    "cantidad" : 3,
+    "size" : 4,
+    "tipo" : "nose"
+}
+###
+DELETE http://localhost:3000/exclusivo/225 HTTP/1.1
+Content-Type: application/json
