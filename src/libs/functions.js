@@ -1,4 +1,5 @@
 import PDFDocument from "pdfkit-table";
+import { supabase } from "../index.js";
 
 export function buildPDF(data, dataCallback, endCallback) {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
