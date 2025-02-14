@@ -69,13 +69,11 @@ const pdf = {
 }
 
 app.get("/pdf", (req, res) => {
-    /**
-     *   const body = req.body;
+    const body = req.body;
 
     if (!body || !body.empresa || !body.nombre || !body.origen || !body.destino || !body.validez_fin || !body.incoterm) {
         return res.status(400).send("Datos incompletos para generar el PDF.");
     }
-        */
 
     const getFileName = (data) => {
         const empresa = data.empresa.charAt(0).toUpperCase();
@@ -88,7 +86,7 @@ app.get("/pdf", (req, res) => {
         return `${empresa}${nombre}${origen}${destino}${ultimaFecha}${incoterm}.pdf`;
     };
 
-    const fileName = getFileName(pdf);
+    const fileName = getFileName(body);
 
     try {
         const stream = res.writeHead(200, {
@@ -96,7 +94,7 @@ app.get("/pdf", (req, res) => {
             "Content-Disposition": `attachment; filename=${fileName}`,
         });
 
-        buildPDF(pdf, (data) => stream.write(data), () => stream.end());
+        buildPDF(body, (data) => stream.write(data), () => stream.end());
     } catch (error) {
         console.error("Error generating PDF:", error);
         res.status(500).send("Error al generar el PDF.");
