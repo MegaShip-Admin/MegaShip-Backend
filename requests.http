@@ -1,1 +1,27 @@
-GET http://localhost:3000/variables HTTP/1.1
+GET http://localhost:3000/trabajos HTTP/1.1
+###
+PATCH  http://localhost:3000/vendedor/220 HTTP/1.1
+Content-Type: application/json
+
+{
+    "email" : "NPC2@gmail.com",
+    "phone" : "111112233"
+}
+###
+PUT http://localhost:3000/trabajos HTTP/1.1
+Content-Type: application/json
+
+{
+    "id": 195,
+    "cliente": 10,
+    "costo": 9000
+}
+###
+POST http://localhost:3000/exclusivo HTTP/1.1
+Content-Type: application/json
+
+{
+    "cantidad" : 33,
+    "size" : 41,
+    "tipo" : "nosejeje"
+}

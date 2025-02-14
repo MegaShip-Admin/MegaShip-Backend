@@ -549,3 +549,18 @@ export async function deleteExclusivo(id) {
         return "Error inesperado al eliminar Exclusivo.";
     }
 }
+
+export async function getTrabajo() {
+    try {
+        const { data, error } = await supabase.from('Trabajo')
+        .select( ' id, cliente(id, name, empresa), origen(id, name), destino(id, name), costo, validez_fin, medio, incoterm(id, name)');
+        if (error) {
+            console.error(`Error fetching data from Trabajo:`, error);
+            return null;
+        }
+        return data;
+    } catch (err) {
+        console.error(`Unexpected error fetching data from Trabajo:`, err);
+        return null;
+    }
+}

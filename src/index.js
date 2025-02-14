@@ -3,7 +3,8 @@ import bodyParser from "body-parser";
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 import { buildPDF, getData, createCommon, createTrabajo, createImportacion, createExportacion, createTable, createExclusivo,
-    updateTrabajo, getDataByEmail, updateData, createVariable, createVendedor, updateVendedor, getVendedores, deleteExclusivo } from "./libs/functions.js";
+    updateTrabajo, getDataByEmail, updateData, createVariable, createVendedor, updateVendedor, getVendedores, deleteExclusivo, getTrabajo } from "./libs/functions.js";
+import cors from 'cors';
 
 // Configuración de Supabase
 const supabaseUrl = 'https://cyfllxdbwhsnlymltmjk.supabase.co';
@@ -19,6 +20,8 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 // Configuración de Express
 export const app = express();
 app.use(bodyParser.json()); // Prefijo de rutas
+
+app.use(cors());
 
 const pdf = {
   "importacion" : true,
@@ -102,11 +105,10 @@ app.get("/pdf", (req, res) => {
 
 app.get("/trabajos", async (req, res) => {
     try {
-        const data = await getData('Trabajo');
-
-        if (!data || data.length === 0) {
-            return res.status(404).json({ error: "No se encontraron registros en trabajos." });
-        }
+        const data = await getTrabajo();
+        ///if (!data || data.length === 0) {
+            ///return res.status(404).json({ error: "No se encontraron registros en trabajos." });
+        ///}
 
         res.json(data);
     } catch (err) {
